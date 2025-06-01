@@ -33,6 +33,7 @@
       <h2 class="text-lg font-bold mb-4">Edit Pengguna</h2>
       <input type="text" id="editName" class="w-full border p-2 mb-3 rounded" placeholder="Nama">
       <input type="email" id="editEmail" class="w-full border p-2 mb-3 rounded" placeholder="Email">
+      <input type="file" id="editPhoto" class="w-full border p-2 mb-3 rounded">
       <div class="flex justify-end gap-2">
         <button onclick="closeModal()" class="bg-gray-300 px-4 py-2 rounded">Batal</button>
         <button onclick="saveChanges()" class="bg-blue-500 text-white px-4 py-2 rounded">Simpan</button>
@@ -88,6 +89,7 @@
       selectedUserId = id;
       document.getElementById('editName').value = name;
       document.getElementById('editEmail').value = email;
+      document.getElementById('editPhoto').value = ''; // reset file input
       document.getElementById('editModal').classList.remove('hidden');
     }
 
@@ -98,14 +100,21 @@
     function saveChanges() {
       const name = document.getElementById('editName').value;
       const email = document.getElementById('editEmail').value;
+      const photo = document.getElementById('editPhoto').files[0];
+
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('email', email);
+      if (photo) {
+        formData.append('photo', photo);
+      }
 
       fetch(`http://localhost:3000/api/users/${selectedUserId}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
         },
-        body: JSON.stringify({ name, email })
+        body: formData
       })
       .then(res => {
         if (!res.ok) throw new Error('Gagal update');
